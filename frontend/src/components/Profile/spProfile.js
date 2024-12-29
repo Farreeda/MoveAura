@@ -2,16 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import ReactStars from 'react-stars';
 import './spProfile.css';
-import './images/yoga1.jpg';
-import './images/yoga2.jpg';
+import yoga1 from './images/yoga1.jpg';
+import yoga2 from './images/yoga2.jpg';
 import { useParams } from 'react-router-dom'; // Import useParams hook
 
 
-const ServiceProvider = ({provider_id }) => {
+const ServiceProvider = ({ }) => {
+    const { provider_id: provider_id } = useParams();  // 'id' is the parameter from the route
+
+    console.log('Provider ID:', provider_id);
+
     const [serviceProvider, setServiceProvider] = useState({
-        name: '',
+        name: 'Faree',
         images: [],
-        location: [42, 43],
+        location: { x: 0, y: 0 },
         schedule: {},
         rating: 0,
         description: '',
@@ -20,9 +24,40 @@ const ServiceProvider = ({provider_id }) => {
     const [reviews, setReviews] = useState({reviews:[]});
 
     useEffect(() => {
-    fetch(`http://localhost:5009/api/service-provider/${provider_id}`)
-      .then((response) => response.json())
-      .then((data) => setServiceProvider(data))
+    fetch(`http://localhost:5009/service-provider/${provider_id}`)
+        .then((response) => {
+            if (!response.ok) {
+                
+                throw new Error('Failed to fetch data');
+            }
+            console.log("------------------")
+            return response.json();
+        })
+        
+        .then((data) => {
+            console.log('Received Data:', data);
+
+            const { results, reviews } = data; // Destructure the response
+
+            if (results && results.length > 0) {
+                const provider = results[0];  // The service provider is the first item in results array
+                setServiceProvider({
+                    ...provider,       // Spread the service provider data
+                    reviews: reviews || []  // Add reviews data to the state
+                });
+            } else {
+                // If no service provider is found, handle gracefully
+                setServiceProvider({
+                    name: 'Not Found',
+                    images: [],
+                    location: { x: 0, y: 0 },
+                    schedule: {},
+                    rating: 0,
+                    description: 'No service provider found.',
+                    reviews: []
+                });
+            }
+        })
       .catch((error) => {
         console.error('Error fetching service provider data:', error);
       });
@@ -43,8 +78,8 @@ const ServiceProvider = ({provider_id }) => {
         <div className="profile-images">
 
           {serviceProvider.images && serviceProvider.images.map((image, index) => (
-           <img key={index} src={`./images/{image}`} alt={`Service provider image ${index + 1}`}
-           onError={(e) => e.target.src = './images/yoga1.jpg'} // Set a fallback if the image fails to load
+           <img key={index} src={yoga1} alt={`Service provider image ${index + 1}`}
+                                                                                   onError={(e) => e.target.src = yoga1} // Set a fallback if the image fails to load
                                                     
             />
           ))}
@@ -53,13 +88,13 @@ const ServiceProvider = ({provider_id }) => {
 
       <div className="map-container">
         <h3>Location</h3>
-        <LoadScript googleMapsApiKey="AIzaSyCMLZk2EyzqLGW46zjQhMERud09RpJLmP4">
+          <LoadScript googleMapsApiKey="AIzaSyCMLZk2EyzqLGW46zjQhMERud09RpJLmP4">
           <GoogleMap
             mapContainerStyle={containerStyle}
-          center={{lat: serviceProvider.location[0], lng: serviceProvider.location[1]}}
+          center={{lat: serviceProvider.location.x, lng: serviceProvider.location.y}}
             zoom={15}
           >
-          <Marker position={{lat: serviceProvider.location[0], lng: serviceProvider.location[1]}} />
+          <Marker position={{lat: serviceProvider.location.x, lng: serviceProvider.location.y}} />
           </GoogleMap>
         </LoadScript>
       </div>
@@ -87,8 +122,8 @@ const ServiceProvider = ({provider_id }) => {
                    <ul>
                      {reviews.map((review, index) => (
                        <li key={index} className="review-item">
-                         <strong>{serviceProvider.reviews.customer_id}:</strong> <span>{review.text}</span>
-                         <ReactStars count={5} value={serviceProvider.reviews.rating} size={20} edit={false} color2={'#ffd700'} />
+                         <strong>{reviews.customer_id}:</strong> <span>{review.text}</span>
+                         <ReactStars count={5} value={reviews.rating} size={20} edit={false} color2={'#ffd700'} />
                        </li>
                      ))}
               </ul>

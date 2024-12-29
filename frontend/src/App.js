@@ -23,7 +23,7 @@ function App() {
         <Route path="/splogin" element={<SpLogin />} />
         <Route path="/services" element={<ServicesList />} />
         <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/service-provider/:id" element={<ServiceProvider />} />
+        <Route path="/service-provider/:provider_id" element={<ServiceProvider />} />
         <Route path="/" element={<Home />} />
       </Routes>
     </Router>

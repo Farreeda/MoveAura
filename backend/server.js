@@ -152,8 +152,8 @@ app.post('/api/splogin', async (req, res) => {
 
 
 // service-provider Profile Management
-app.get('/api/service-provider/:provider_id', (req, res) => {
-    const provider_id = 18;
+app.get('/service-provider/:provider_id', (req, res) => {
+    const provider_id = req.params.provider_id;
     console.log('Provider ID:', provider_id);
     const query = `
         SELECT 
@@ -174,7 +174,7 @@ app.get('/api/service-provider/:provider_id', (req, res) => {
         }
         
         // Fetch reviews for the service provider
-        const reviewsQuery = 'SELECT customer_id, comment, rating FROM reviews WHERE provider_id = 18';
+        const reviewsQuery = 'SELECT customer_id, comment, rating FROM reviews WHERE provider_id = ?';
         
         db.query(reviewsQuery, [provider_id], (err, reviews) => {
             if (err) {

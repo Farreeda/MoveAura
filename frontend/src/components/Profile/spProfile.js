@@ -170,7 +170,7 @@ const ServiceProvider = () => {
 
             <div className="map-container">
                 <h3>Location</h3>
-                <LoadScript googleMapsApiKey="AIzaSyCMLZk2EyzqLGW46zjQhMERud09RpJLmP4">
+            <LoadScript googleMapsApiKey=${{env.google_Api}}>
                     <GoogleMap
                         mapContainerStyle={containerStyle}
                         center={{

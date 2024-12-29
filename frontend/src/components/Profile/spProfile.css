@@ -1,0 +1,47 @@
+.profile-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.profile-header {
+  text-align: center;
+}
+
+.profile-header h2 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.profile-images img {
+  margin: 5px;
+  width: 100px;
+  height: 70px;
+  object-fit: cover;
+}
+
+.map-container {
+  margin-top: 20px;
+}
+
+.schedule-container, .rating-container, .reviews-container {
+  margin-top: 30px;
+}
+
+.schedule-container ul, .reviews-container ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.schedule-container li, .reviews-container li {
+  margin-bottom: 10px;
+}
+
+.review-item {
+  margin-bottom: 15px;
+}
+
+.review-item span {
+  font-style: italic;
+}

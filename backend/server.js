@@ -151,22 +151,49 @@ app.post('/api/splogin', async (req, res) => {
 });
 
 
-// Profile Management
-app.put('/api/profile', authenticate, (req, res) => {
-  const { profile } = req.body;
-  const username = req.user.username;
-
-  // Update profile in the database
-  const updateProfileQuery = 'UPDATE users SET profile = ? WHERE username = ?';
-  db.query(updateProfileQuery, [JSON.stringify(profile), username], (err, results) => {
-    if (err) {
-      console.error('Error updating profile:', err);
-      return res.status(500).send('Error updating profile.');
-    }
-
-    res.send('Profile updated successfully.');
-  });
+// service-provider Profile Management
+app.get('/api/service-provider/:provider_id', (req, res) => {
+    const provider_id = 18;
+    console.log('Provider ID:', provider_id);
+    const query = `
+        SELECT 
+          name, images, location, schedule, rating, description 
+        FROM 
+          serviceprovider
+        WHERE 
+          provider_id = ?
+      `;
+    db.query(query, [provider_id], (err, results) => {
+        if (err) {
+            console.error('Error fetching service provider:', err);
+            return res.status(500).send('Error fetching service provider.');
+        }
+        
+        if (results.length === 0) {
+            return res.status(404).send('Service provider not found.');
+        }
+        
+        // Fetch reviews for the service provider
+        const reviewsQuery = 'SELECT customer_id, comment, rating FROM reviews WHERE provider_id = 18';
+        
+        db.query(reviewsQuery, [provider_id], (err, reviews) => {
+            if (err) {
+                console.error('Error fetching reviews:', err);
+                return res.status(500).send('Error fetching reviews.');
+            }
+            
+            // Combine service provider data and reviews
+            const serviceProvider = {
+                results,
+                reviews: reviews,
+            };
+            res.json(serviceProvider); // Send the data back to the frontend
+        });
+    });
 });
+
+module.exports = app;  // Export app for testing
+
 
 // Search API (Example)
 app.get('/search', (req, res) => {

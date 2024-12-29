@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/Farreeda/MoveAura/issues"
   },
-  "homepage": "https://github.com/Farreeda/MoveAura#readme"
+  "homepage": "https://github.com/Farreeda/MoveAura#readme",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
 }

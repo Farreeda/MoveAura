@@ -154,6 +154,9 @@ app.post('/api/splogin', async (req, res) => {
 // service-provider Profile Management
 app.get('/service-provider/:provider_id', (req, res) => {
     const provider_id = req.params.provider_id;
+    if (isNaN(provider_id)) {
+        return res.status(400).json({ error: 'Invalid provider ID' });
+      }
     console.log('Provider ID:', provider_id);
     const query = `
         SELECT 
@@ -193,6 +196,39 @@ app.get('/service-provider/:provider_id', (req, res) => {
 });
 
 module.exports = app;  // Export app for testing
+
+
+app.post('/api/book', async (req, res) => {
+  const { user_id, provider_id, session_id } = req.body;
+
+  // Find the service provider and extract schedule
+  const provider = await db.query('SELECT * FROM serviceprovider WHERE provider_id = ?', [provider_id]);
+
+  if (!provider || !provider[0].schedule) {
+    return res.status(404).json({ error: 'Service provider not found' });
+  }
+
+  // Parse schedule JSON
+  const schedule = JSON.parse(provider[0].schedule);
+
+  // Find the session in the schedule
+  const session = schedule.sessions.find(s => s.session_id === session_id);
+
+  if (!session) {
+    return res.status(404).json({ error: 'Session not found' });
+  }
+
+  // Create booking
+  const price = session.price;
+  const booking_time = new Date();
+
+  const booking = await db.query(
+    'INSERT INTO bookings (user_id, provider_id, session_id, price, booking_time) VALUES (?, ?, ?, ?, ?)',
+    [user_id, provider_id, session_id, price, booking_time]
+  );
+
+  return res.status(201).json({ message: 'Booking successful', booking_id: booking.insertId });
+});
 
 
 // Search API (Example)

@@ -23,7 +23,8 @@ const ServiceProvider = () => {
     const [reviews, setReviews] = useState([]);
     const [newReview, setNewReview] = useState({ rating: 0, text: '' });
     const [user, setUser] = useState(null); // To store the logged-in user
-
+    const [bookingStatus, setBookingStatus] = useState('');
+    
     // Fetch service provider data
     useEffect(() => {
         fetch(`http://localhost:5009/service-provider/${provider_id}`)
@@ -107,6 +108,41 @@ const ServiceProvider = () => {
             });
     };
 
+    
+    const handleBooking = (day, time) => {
+           if (!user) {
+               alert('You must be logged in to book a class.');
+               return;
+           }
+
+           // Send the booking request to the backend
+           fetch('http://localhost:5009/api/book', {
+               method: 'POST',
+               headers: {
+                   'Content-Type': 'application/json',
+               },
+               body: JSON.stringify({
+                   provider_id: provider_id,
+                   user_id: user.id,
+                   day,
+                   time,
+               }),
+           })
+               .then((response) => response.json())
+               .then((data) => {
+                   if (data.success) {
+                       setBookingStatus('Booking successful!');
+                       alert('Your class has been booked.');
+                   } else {
+                       setBookingStatus('Failed to book the class.');
+                       alert('Failed to book the class.');
+                   }
+               })
+               .catch((error) => {
+                   console.error('Error booking class:', error);
+               });
+       };
+    
     // Google Map container styling
     const containerStyle = {
         width: '100%',
@@ -159,6 +195,8 @@ const ServiceProvider = () => {
                     {Object.entries(serviceProvider.schedule).map(([day, time], index) => (
                         <li key={index}>
                             <strong>{day.charAt(0).toUpperCase() + day.slice(1)}:</strong> {time}
+                               <button onClick={() => handleBooking(day, time)}>Book Class</button>
+
                         </li>
                     ))}
                 </ul>

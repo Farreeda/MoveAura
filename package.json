@@ -1,0 +1,20 @@
+{
+  "name": "fmoveaura",
+  "version": "1.0.0",
+  "description": "A Software Engineering application for hobbies. Built using Scrum development style.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Farreeda/MoveAura.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Farreeda/MoveAura/issues"
+  },
+  "homepage": "https://github.com/Farreeda/MoveAura#readme"
+}

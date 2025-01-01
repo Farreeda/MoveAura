@@ -86,7 +86,7 @@ app.post('/api/register', async (req, res) => {
 // User Login
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
-
+    length = 0
   // Find the user by username
   const findUserQuery = 'SELECT * FROM users WHERE username = ?';
   db.query(findUserQuery, [username], async (err, results) => {

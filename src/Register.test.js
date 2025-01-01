@@ -1,5 +1,5 @@
 const request = require('supertest');
-const bcrypt = require('bcrypt');
+//const bcrypt = require('bcrypt');
 const app = require('../backend/server.js');  // Import your Express app
 const db = require('./db'); // Your database connection
 

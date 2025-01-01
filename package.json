@@ -4,7 +4,10 @@
   "description": "A Software Engineering application for hobbies. Built using Scrum development style.",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "react-scripts test",
+    "start": "react-scripts start --openssl-legacy-provider",
+    "build": "react-scripts --openssl-legacy-provider build",
+    "eject": "react-scripts eject"
   },
   "repository": {
     "type": "git",
@@ -27,6 +30,15 @@
     "supertest": "^7.0.0"
   },
   "dependencies": {
-    "bcrypt": "^5.1.1"
+    "@react-google-maps/api": "^2.20.5",
+    "axios": "^1.7.9",
+    "bcrypt": "^5.1.1",
+    "cra-template": "1.2.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^6.28.1",
+    "react-scripts": "^5.0.1",
+    "react-stars": "^2.2.5",
+    "web-vitals": "^4.2.4"
   }
 }

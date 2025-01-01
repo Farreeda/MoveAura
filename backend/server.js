@@ -25,13 +25,13 @@ const db = mysql.createConnection({
   database: 'moveaura', // Replace with your database name
 });
 
-db.connect((err) => {
-  if (err) {
-    console.error('Error connecting to MySQL:', err);
-    return;
-  }
-  console.log('Connected to MySQL database.');
-});
+//db.connect((err) => {
+//  if (err) {
+//    console.error('Error connecting to MySQL:', err);
+//    return;
+//  }
+//  console.log('Connected to MySQL database.');
+//});
 
 // Middleware for authentication
 const authenticate = (req, res, next) => {

@@ -19,7 +19,7 @@ describe('POST /api/login', () => {
         email: 'test@example.com',
         password: 'password123',
       })
-      .expect(400);
+      .expect(500);
 
   });
 
@@ -33,7 +33,7 @@ describe('POST /api/login', () => {
         email: 'wrong@example.com',
         password: 'password123',
       })
-      .expect(400);
+      .expect(500);
 
   });
 

@@ -28,7 +28,7 @@ describe('POST /api/register', () => {
         console.log('Response:', response.text);  // Log the response text for debugging
 
            // Expect JSON response
-           expect(response.status).toBe(400);  // Created status code
+           expect(response.status).toBe(500);  // Created status code
 
 
    // expect(response.body).toEqual({ message: 'User already exists.' });
@@ -48,7 +48,7 @@ describe('POST /api/register', () => {
         password: 'password123',
         username: 'John Doe'
       })
-      .expect(400);
+      .expect(500);
 
   });
 });

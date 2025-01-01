@@ -19,19 +19,19 @@ app.use(bodyParser.json());
 
 // Database connection
 const db = mysql.createConnection({
-  host: 'localhost',
+  host: '192.168.24.0',
   user: 'user', // Replace with your MySQL username
   password: 'newpassword', // Replace with your MySQL password
   database: 'moveaura', // Replace with your database name
 });
 
-//db.connect((err) => {
-//  if (err) {
+db.connect((err) => {
+  //if (err) {
 //    console.error('Error connecting to MySQL:', err);
 //    return;
 //  }
 //  console.log('Connected to MySQL database.');
-//});
+});
 
 // Middleware for authentication
 const authenticate = (req, res, next) => {

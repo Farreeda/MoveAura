@@ -1,56 +1,45 @@
 {
-  "name": "fmoveaura",
+  "name": "my-app",
   "version": "1.0.0",
-  "description": "A Software Engineering application for hobbies. Built using Scrum development style.",
+  "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
     "test": "react-scripts test",
-    "start": "react-scripts start --openssl-legacy-provider",
-    "build": "react-scripts --openssl-legacy-provider build",
     "eject": "react-scripts eject"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Farreeda/MoveAura.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Farreeda/MoveAura/issues"
-  },
-  "homepage": "https://github.com/Farreeda/MoveAura#readme",
-  "devDependencies": {
-    "@babel/preset-env": "^7.26.0",
-    "@babel/preset-react": "^7.26.3",
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.1.0",
-    "babel-jest": "^29.7.0",
-    "jest": "^29.7.0",
-    "supertest": "^7.0.0"
-  },
   "dependencies": {
     "@react-google-maps/api": "^2.20.5",
     "axios": "^1.7.9",
     "bcrypt": "^5.1.1",
-    "cra-template": "1.2.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "react-router-dom": "^6.28.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^7.1.1",
     "react-scripts": "^5.0.1",
     "react-stars": "^2.2.5",
+    "util": "^0.12.5"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@testing-library/user-event": "^14.5.2",
+    "jest": "^27.5.1",
+    "jest-html-reporters": "^3.1.7",
+    "mysql2": "^3.12.0",
+    "supertest": "^7.0.0",
     "web-vitals": "^4.2.4"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
+  "jest": {
+    "reporters": [
+      "default",
+      ["jest-html-reporters", {
+        "publicPath": "./reports",
+        "filename": "test-report.html"
+      }]
     ]
   }
 }

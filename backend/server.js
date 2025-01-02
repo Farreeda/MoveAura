@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const mysql = require('mysql2');
 const dotenv = require('dotenv');
+const moment = require('moment');
 
 dotenv.config(); // Load environment variables from .env file
 
@@ -19,18 +20,18 @@ app.use(bodyParser.json());
 
 // Database connection
 const db = mysql.createConnection({
-  host: '192.168.24.0',
+  host: 'localhost',
   user: 'user', // Replace with your MySQL username
   password: 'newpassword', // Replace with your MySQL password
   database: 'moveaura', // Replace with your database name
 });
 
 db.connect((err) => {
-  //if (err) {
-//    console.error('Error connecting to MySQL:', err);
-//    return;
-//  }
-//  console.log('Connected to MySQL database.');
+  if (err) {
+    console.error('Error connecting to MySQL:', err);
+    return;
+  }
+  console.log('Connected to MySQL database.');
 });
 
 // Middleware for authentication
@@ -51,36 +52,37 @@ const authenticate = (req, res, next) => {
 app.post('/api/register', async (req, res) => {
   const { username, password, email } = req.body;
 
-    if (!username || !password || !email) {
-        return res.status(400).send('Username, password, and email are required.');
-      }
-    
+  // Check for required fields
+  if (!username || !password || !email) {
+    return res.status(400).json({ message: 'Username, password, and email are required.' });
+  }
+
   // Check if user already exists
   const checkUserQuery = 'SELECT * FROM users WHERE username = ?';
-  db.query(checkUserQuery, [username], async (err, results) => {
-    if (err) {
-      console.error('Error checking for existing user:', err);
-      return res.status(500).send('Error checking for user.');
-    }
-
-    if (results.length > 0) {
-      return res.status(400).send('User already exists.');
-    }
-
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-    
-    // Insert new user into the database
-    const insertUserQuery = 'INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, ?)';
-    db.query(insertUserQuery, [username, hashedPassword, email, 'user'], (err, results) => {
-      if (err) {
-        console.error('Error inserting user:', err);
-        return res.status(500).send('Error creating user.');
+  
+  // Wrap the db query in a promise
+  db.promise().query(checkUserQuery, [username])
+    .then(([results]) => {
+      if (results.length > 0) {
+        return res.status(400).json({ message: 'User already exists.' });
       }
 
-      res.status(201).send('User registered successfully.');
+      // Hash password
+      return bcrypt.hash(password, 10);
+    })
+    .then((hashedPassword) => {
+      // Insert new user into the database
+      const insertUserQuery = 'INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, ?)';
+      return db.promise().query(insertUserQuery, [username, hashedPassword, email, 'user']);
+    })
+    .then(() => {
+      // Respond with success
+      res.status(201).json({ message: 'User registered successfully.' });
+    })
+    .catch((err) => {
+      console.error('Error:', err);
+      res.status(500).json({ message: 'An error occurred. Please try again.' });
     });
-  });
 });
 
 // User Login
@@ -108,11 +110,20 @@ app.post('/api/login', async (req, res) => {
     // Generate JWT token
     const token = jwt.sign(
       { username: user.username },
-      process.env.JWT_SECRET, // Secret from environment
+      "Fareeda33", // Secret from environment
       { expiresIn: '1h' }
     );
+      
+    res.setHeader('Content-Type', 'application/json');
+    res.set('Cache-Control', 'no-store');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
 
-    res.json({ token });
+    res.json({
+        token,
+        username: user.username,  // Send username to the client
+        user_id: user.user_id
+    });
   });
 });
 
@@ -198,36 +209,85 @@ app.get('/service-provider/:provider_id', (req, res) => {
 module.exports = app;  // Export app for testing
 
 
+app.get('/api/service-providers', (req, res) => {
+    const query = `
+        SELECT 
+          name, images, location, schedule, rating, description 
+        FROM 
+          serviceprovider
+      `;
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error('Error fetching service provider:', err);
+            return res.status(500).send('Error fetching service provider.');
+        }
+        const serviceProvider = {
+            results
+        };
+        res.json(serviceProvider);
+});
+});
+
+
+app.post('/api/review', (req, res) => {
+  const { provider_id, user_id, rating, text } = req.body;
+
+  // Validate input
+  if (!provider_id || !user_id || !rating || !text) {
+    return res.status(400).json({ message: 'All fields are required.' });
+  }
+
+  // SQL query to insert the review into the database
+  const insertReviewQuery = `
+    INSERT INTO reviews (provider_id, customer_id, rating, comment)
+    VALUES (?, ?, ?, ?)
+  `;
+
+  db.query(insertReviewQuery, [provider_id, user_id, rating, text], (err, results) => {
+    if (err) {
+      console.error('Error inserting review:', err);
+      return res.status(500).json({ message: 'Error submitting review.' });
+    }
+
+    // Return success response
+    return res.status(200).json({
+      success: true,
+      review: {
+        provider_id,
+        user_id,
+        rating,
+        text,
+        review_id: results.insertId, // Return the ID of the newly inserted review
+      },
+    });
+  });
+});
+
+
 app.post('/api/book', async (req, res) => {
-  const { user_id, provider_id, session_id } = req.body;
+  const { user_id, provider_id, day, time } = req.body;
 
-  // Find the service provider and extract schedule
-  const provider = await db.query('SELECT * FROM serviceprovider WHERE provider_id = ?', [provider_id]);
-
-  if (!provider || !provider[0].schedule) {
-    return res.status(404).json({ error: 'Service provider not found' });
+  if (!provider_id || !user_id || !day || !time) {
+    return res.status(400).json({ message: 'All fields are required.' });
   }
 
-  // Parse schedule JSON
-  const schedule = JSON.parse(provider[0].schedule);
+  try {
+    const price = 300;
+      const currentDate = moment().startOf('week');
+      const bookingDate = currentDate.add(moment().day(day).day() - 1, 'days'); // Adjust to match the given day
 
-  // Find the session in the schedule
-  const session = schedule.sessions.find(s => s.session_id === session_id);
+    const booking_time = `${bookingDate} ${time.split('-')[0].trim()}:00`;
 
-  if (!session) {
-    return res.status(404).json({ error: 'Session not found' });
+    const [result] = await db.promise().query(
+      'INSERT INTO bookings (user_id, provider_id, price, booking_time) VALUES (?, ?, ?, ?)',
+      [user_id, provider_id, price, booking_time]
+    );
+
+    return res.status(201).json({ message: 'Booking successful', booking_id: result.insertId });
+  } catch (err) {
+    console.error('Error creating booking:', err);
+    return res.status(500).json({ message: 'Failed to create booking.' });
   }
-
-  // Create booking
-  const price = session.price;
-  const booking_time = new Date();
-
-  const booking = await db.query(
-    'INSERT INTO bookings (user_id, provider_id, session_id, price, booking_time) VALUES (?, ?, ?, ?, ?)',
-    [user_id, provider_id, session_id, price, booking_time]
-  );
-
-  return res.status(201).json({ message: 'Booking successful', booking_id: booking.insertId });
 });
 
 
@@ -239,7 +299,7 @@ app.get('/search', (req, res) => {
     return res.status(400).json({ message: 'Search query is required.' });
   }
 
-  const sql = 'SELECT * FROM sports WHERE name LIKE ?';
+  const sql = 'SELECT * FROM sports WHERE sport_name LIKE ?';
   const searchTerm = `%${query}%`;
 
   db.query(sql, [searchTerm], (err, results) => {
@@ -251,6 +311,9 @@ app.get('/search', (req, res) => {
     res.json(results);
   });
 });
+
+
+
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);

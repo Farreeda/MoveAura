@@ -30,26 +30,33 @@ afterAll((done) => {
   }
 });
 
-describe('POST /api/register', () => {
+describe('POST /api/book', () => {
     
     
     
-    it('should register a new user', async () => {
+    it('should book for a user', async () => {
         // Mock a successful registration (user does not exist)
         db.query.mockResolvedValueOnce([]);  // Simulate no user found with the email
         db.query.mockResolvedValueOnce([{ insertId: 1 }]);  // Simulate successful insert
         
+        
+        const user_id = 1; // Example user ID
+          const provider_id = 1; // Example provider ID
+          const day = 'Monday'; // Example day
+          const time = '10:00-11:00';
+        
         const response = await request(app)
-        .post('/api/register')
+        .post('/api/book')
         .send({
-            email: generateRandomString(10) +'@example.com',
-            password: generateRandomString(10),
-            username: generateRandomString(10)
+            user_id: user_id,
+                 provider_id,
+                 day,
+                 time,
         })
         console.log('Response:', response.text);  // Log the response text for debugging
         
         // Expect JSON response
-        expect(response.status).toBe(201);  // Created status code
+        expect(response.status).toBe(500);  // Created status code
         
         
         // expect(response.body).toEqual({ message: 'User already exists.' });

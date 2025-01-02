@@ -24,7 +24,7 @@ on:
 
 env:
   AZURE_WEBAPP_NAME: your-app-name    # set this to your application's name
-  AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
+  AZURE_WEBAPP_PACKAGE_PATH: 'my-app/' # set this to the path to your web app project
   NODE_VERSION: '20.x'                # set this to the node version to use
 
 permissions:
@@ -44,6 +44,7 @@ jobs:
 
     - name: npm install, build, and test
       run: |
+        cd my-app
         npm install
         npm run build --if-present
         npm run test --if-present
@@ -52,7 +53,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: node-app
-        path: .
+        path: my-app/
 
   deploy:
     permissions:
